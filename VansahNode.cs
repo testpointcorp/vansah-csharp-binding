@@ -115,14 +115,52 @@ namespace Vansah
         /// <summary>
         /// For an Advanced Test Plan run, tells Vansah which requirement the test case is being run under:
         /// "folder" (uses <see cref="TestFolderID"/>) or "issue" (uses <see cref="JiraIssueKey"/>). Defaults to "folder".
+        /// Set automatically by <see cref="AddTestRunFromAdvancedTestPlan"/>.
         /// </summary>
         public string TestPlanAssetType { get; set; } = "folder";
 
-        // Test plan key (e.g. "DEMO-P8") for a Standard/Advanced Test Plan run; set by the plan run methods.
+        // Standard Test Plan key (e.g. "DEMO-P9"); set via setStandardTestPlanKey.
+        private string standardTestPlanKey;
+
+        // Advanced Test Plan key (e.g. "DEMO-P8"); set via setAdvancedTestPlanKey.
+        private string advancedTestPlanKey;
+
+        // The plan key actually used for the current run; chosen by the plan run methods.
         private string testPlanKey;
 
-        // Iteration number (1-5) for a Test Plan run; set by the plan run methods.
+        // Test Plan iteration to target (1-5); defaults to 1, overridden via setTestPlanIteration. Plans only.
         private int iterationNumber = 1;
+
+        /// <summary>
+        /// Sets the Standard Test Plan key that <see cref="AddTestRunFromStandardTestPlan"/> runs against, e.g. "DEMO-P9".
+        /// </summary>
+        /// <param name="testPlanKey">Standard Test Plan key. A null/empty value is ignored with a warning.</param>
+        public void setStandardTestPlanKey(string testPlanKey)
+        {
+            if (!string.IsNullOrEmpty(testPlanKey)) standardTestPlanKey = testPlanKey;
+            else Console.WriteLine("⚠️ Warning: Provided Standard Test Plan Key is null or empty. Value not updated.");
+        }
+
+        /// <summary>
+        /// Sets the Advanced Test Plan key that <see cref="AddTestRunFromAdvancedTestPlan"/> runs against, e.g. "DEMO-P8".
+        /// </summary>
+        /// <param name="testPlanKey">Advanced Test Plan key. A null/empty value is ignored with a warning.</param>
+        public void setAdvancedTestPlanKey(string testPlanKey)
+        {
+            if (!string.IsNullOrEmpty(testPlanKey)) advancedTestPlanKey = testPlanKey;
+            else Console.WriteLine("⚠️ Warning: Provided Advanced Test Plan Key is null or empty. Value not updated.");
+        }
+
+        /// <summary>
+        /// Sets the iteration to target when running against a Standard or Advanced Test Plan. Optional — runs
+        /// default to iteration 1. Only affects the two test-plan run methods, not issue or folder runs.
+        /// </summary>
+        /// <param name="iteration">Iteration to target. Valid range is 1-5; values outside it are ignored (a warning is printed and the default of 1 is kept).</param>
+        public void setTestPlanIteration(int iteration)
+        {
+            if (iteration >= 1 && iteration <= 5) iterationNumber = iteration;
+            else Console.WriteLine("⚠️ Warning: Test Plan iteration must be between 1 and 5. Keeping the default of 1.");
+        }
 
         /// <summary>
         /// Gets or sets the name of the sprint associated with the test. This field is mandatory.
@@ -235,38 +273,35 @@ namespace Vansah
         }
 
         /// <summary>
-        /// Starts a test run for a test case in a given iteration of a Standard Test Plan.
-        /// The run is created as Untested with an empty log for each step; call
-        /// <see cref="AddTestLog(int, string, int)"/> to record the result of each step.
-        /// The test case must already be part of the plan.
+        /// Starts a test run for a test case under a Standard Test Plan. Set the plan key first with
+        /// <see cref="setStandardTestPlanKey"/>; the run targets iteration 1 unless you call
+        /// <see cref="setTestPlanIteration"/>. The run is created as Untested with an empty log for each
+        /// step; call <see cref="AddTestLog(int, string, int)"/> to record the result of each step.
         /// </summary>
-        /// <param name="testCase">Test case key, e.g. "DEMO-C50".</param>
-        /// <param name="testPlan">Standard Test Plan key, e.g. "DEMO-P9".</param>
-        /// <param name="iteration">Plan iteration to run against. Defaults to 1.</param>
-        public void AddTestRunFromStandardTestPlan(string testCase, string testPlan, int iteration = 1)
+        /// <param name="testCase">Test case key, e.g. "DEMO-C50". Must belong to the plan.</param>
+        public void AddTestRunFromStandardTestPlan(string testCase)
         {
             caseKey = testCase;
-            testPlanKey = testPlan;
-            iterationNumber = iteration;
+            testPlanKey = standardTestPlanKey;
             ConnectToVansahRest("AddTestRunFromStandardTestPlan");
         }
 
         /// <summary>
-        /// Starts a test run for a test case in a given iteration of an Advanced Test Plan.
-        /// Because a case can sit under more than one requirement in an advanced plan, set
-        /// <see cref="TestPlanAssetType"/> ("folder" or "issue") plus the matching
-        /// <see cref="TestFolderID"/> (folder path) or <see cref="JiraIssueKey"/> to identify which one.
-        /// The run is created as Untested with an empty log for each step; call
-        /// <see cref="AddTestLog(int, string, int)"/> to record the result of each step.
+        /// Starts a test run for a test case under an Advanced Test Plan. Set the plan key first with
+        /// <see cref="setAdvancedTestPlanKey"/>; the run targets iteration 1 unless you call
+        /// <see cref="setTestPlanIteration"/>. Because a case can sit under more than one requirement in an
+        /// advanced plan, pass the requirement's asset type and set its matching key
+        /// (<see cref="TestFolderID"/> for "folder" or <see cref="JiraIssueKey"/> for "issue"). The run is
+        /// created as Untested with an empty log for each step; call <see cref="AddTestLog(int, string, int)"/>
+        /// to record the result of each step.
         /// </summary>
-        /// <param name="testCase">Test case key, e.g. "DEMO-C50".</param>
-        /// <param name="testPlan">Advanced Test Plan key, e.g. "DEMO-P8".</param>
-        /// <param name="iteration">Plan iteration (1-5) to run against. Defaults to 1.</param>
-        public void AddTestRunFromAdvancedTestPlan(string testCase, string testPlan, int iteration = 1)
+        /// <param name="testPlanAssetType">The requirement the case runs under: "folder" or "issue".</param>
+        /// <param name="testCase">Test case key, e.g. "DEMO-C50". Must belong to the plan.</param>
+        public void AddTestRunFromAdvancedTestPlan(string testPlanAssetType, string testCase)
         {
+            TestPlanAssetType = testPlanAssetType;
             caseKey = testCase;
-            testPlanKey = testPlan;
-            iterationNumber = iteration;
+            testPlanKey = advancedTestPlanKey;
             ConnectToVansahRest("AddTestRunFromAdvancedTestPlan");
         }
         /// <summary>
