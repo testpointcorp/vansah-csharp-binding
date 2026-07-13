@@ -8,3 +8,6 @@ img/screenshot.png
 .env
 .env.example
 localtests/
+
+# Local docs (how-to Word doc, etc.)
+docs/
