@@ -51,9 +51,6 @@ namespace Vansah
         // Endpoint for removing a test run. The run ID will be appended to this URL to specify which run to remove.
         private static string remove_Test_Run => $"{vansah_URL}/api/{api_Version}/run/";
 
-        // Endpoint to retrieve test scripts based on the test case. This is used to list scripts associated with a case.
-        private static string test_Script => $"{vansah_URL}/api/{api_Version}/testCase/list/testScripts";
-
         //--------------------------- INFORM YOUR UNIQUE VANSAH TOKEN HERE ---------------------------------------------------
 
         /// <summary>
