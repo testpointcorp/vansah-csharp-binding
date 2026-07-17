@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Local-only harness that drives VansahNode against a real Vansah instance using ../.env.
+       Not part of the shipped binding (this whole folder is gitignored).
+       Run all flows:  dotnet run  (with args "plans" to run the test-plan flows only). -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <Compile Include="../VansahNode.cs" Link="VansahNode.cs" />
+  </ItemGroup>
+
+</Project>

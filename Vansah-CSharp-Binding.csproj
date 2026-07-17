@@ -11,9 +11,9 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
-  <!-- Keep any local-only test harness (localtests/, gitignored) out of the library build. -->
+  <!-- Keep any local-only test harness (test/, gitignored) out of the library build. -->
   <ItemGroup>
-    <Compile Remove="localtests/**/*.cs" />
+    <Compile Remove="test/**/*.cs" />
   </ItemGroup>
 
 </Project>

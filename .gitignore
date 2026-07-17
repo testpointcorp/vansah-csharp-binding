@@ -6,8 +6,5 @@ img/screenshot.png
 
 # Local secrets and the local-only test harness — never commit these to prod
 .env
-.env.example
-localtests/
-
-# Local docs (how-to Word doc, etc.)
-docs/
+/test/bin
+/test/Obj
