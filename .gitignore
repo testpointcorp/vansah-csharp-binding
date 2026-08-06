@@ -1,5 +1,10 @@
 
 /.vs
-/bin
-/obj
+bin/
+obj/
 img/screenshot.png
+
+# Local secrets and the local-only test harness — never commit these to prod
+.env
+/test/bin
+/test/Obj
